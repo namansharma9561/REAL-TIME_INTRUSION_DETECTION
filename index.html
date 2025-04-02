@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Intrusion Detection</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        h1 {
+            background-color: #2f3b52;
+            color: white;
+            padding: 30px 0;
+            margin: 0;
+            font-size: 36px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: white;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        .video-container {
+            margin: 20px 0;
+        }
+        .video-container img {
+            width: 60%;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .controls {
+            margin-top: 30px;
+        }
+        .controls button {
+            background: linear-gradient(135deg, #FF6347, #FF4500);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.2s, background-color 0.3s;
+        }
+        .controls button:hover {
+            background-color: #FF4500;
+            transform: scale(1.1);
+        }
+        .status {
+            font-size: 18px;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        .status.success {
+            background-color: #32CD32;
+            color: white;
+        }
+        .status.error {
+            background-color: #FF6347;
+            color: white;
+        }
+        /* Modal Styling */
+       
+    </style>
+</head>
+<body>
+    <h1>Real-Time Intrusion Detection</h1>
+    
+    <div class="container">
+        <div class="video-container">
+            <h2>Live Video Feed</h2>
+            <img src="/video_feed" alt="Video Stream">
+        </div>
+
+        <div class="controls">
+            
+            <button onclick="stopAlarm()">Stop Alarm</button>
+            <button onclick="updateSentiment()">Update Sentiment</button>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+    
+
+    <script>
+       
+        // Function to stop the alarm
+        function stopAlarm() {
+            fetch('/stop_alarm', { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        showStatus("Alarm stopped successfully!", "success");
+                    } else {
+                        showStatus("Failed to stop the alarm.", "error");
+                    }
+                })
+                .catch(() => showStatus("Error stopping the alarm.", "error"));
+        }
+
+        // Function to update sentiment
+        function updateSentiment() {
+            const sentimentText = prompt("Enter new sentiment text:", "Everything seems fine");
+            if (sentimentText) {
+                fetch('/update_sentiment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `text=${encodeURIComponent(sentimentText)}`
+                })
+                .then(response => response.text())
+                .then(data => showStatus(data, "success"))
+                .catch(() => showStatus("Error updating sentiment.", "error"));
+            }
+        }
+
+        // Function to display status messages
+        function showStatus(message, type) {
+            const statusElement = document.getElementById("status");
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+    </script>
+    <button onclick="captureFace()">Capture Face</button>
+
+    <script>
+    function captureFace() {
+        let personName = prompt("Enter the name of the authorized person:");
+        if (personName) {
+            fetch(`/capture_face?name=${personName}`)
+                .then(response => response.text())
+                .then(data => alert(data));
+        }
+    }
+    </script>
+    
+</body>
+</html>

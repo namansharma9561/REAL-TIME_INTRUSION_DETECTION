@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In / Sign Up</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #2f3b52, #3b5998);
+            color: white;
+        }
+        .container {
+            background-color: white;
+            color: #2f3b52;
+            width: 400px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #3b5998;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            font-size: 16px;
+            margin: 10px 0;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2f3b52;
+            transform: scale(1.05);
+        }
+        .link {
+            color: #3b5998;
+            text-decoration: none;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+        .form-group {
+            margin: 15px 0;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .toggle-form {
+            color: #3b5998;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .toggle-form:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Intrusion Detection</h1>
+        <p>Please sign in or create an account to access the application.</p>
+        
+        <!-- Sign In Form -->
+        <form id="signinForm">
+            <h2>Sign In</h2>
+            <div class="form-group">
+                <label for="signinEmail">Email:</label>
+                <input type="email" id="signinEmail" name="email" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label for="signinPassword">Password:</label>
+                <input type="password" id="signinPassword" name="password" placeholder="Enter your password" required>
+            </div>
+            <button type="button" onclick="authenticateUser('signin')">Sign In</button>
+            <span class="toggle-form" onclick="toggleForm('signup')">Don't have an account? Sign Up</span>
+        </form>
+
+        <!-- Sign Up Form -->
+        <form id="signupForm" style="display: none;">
+            <h2>Sign Up</h2>
+            <div class="form-group">
+                <label for="signupEmail">Email:</label>
+                <input type="email" id="signupEmail" name="email" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label for="signupPassword">Password:</label>
+                <input type="password" id="signupPassword" name="password" placeholder="Enter your password" required>
+            </div>
+            <div class="form-group">
+                <label for="signupConfirmPassword">Confirm Password:</label>
+                <input type="password" id="signupConfirmPassword" placeholder="Re-enter your password" required>
+            </div>
+            <button type="button" onclick="authenticateUser('signup')">Sign Up</button>
+            <span class="toggle-form" onclick="toggleForm('signin')">Already have an account? Sign In</span>
+        </form>
+
+        <a href="#" class="link" onclick="forgotPassword()">Forgot Password?</a>
+    </div>
+
+    <script>
+        // Function to authenticate user (Sign In / Sign Up)
+        function authenticateUser(type) {
+            const email = document.getElementById(`${type}Email`).value;
+            const password = document.getElementById(`${type}Password`).value;
+            let confirmPassword;
+
+            if (type === 'signup') {
+                confirmPassword = document.getElementById('signupConfirmPassword').value;
+                if (password !== confirmPassword) {
+                    alert("Passwords do not match!");
+                    return;
+                }
+            }
+
+            fetch(`/${type}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (type === 'signup') {
+                        alert("Sign Up successful! Please Sign In.");
+                        toggleForm('signin'); // Switch to Sign-In page after Sign-Up
+                    } else {
+                        alert("Sign In successful! Launching the program...");
+                        window.location.href = "/home"; // Redirect to Intrusion Detection system
+                    }
+                } else {
+                    alert(`${type === 'signin' ? 'Sign In' : 'Sign Up'} failed. ${data.message}`);
+                }
+            })
+            .catch(() => {
+                alert(`Error during ${type}. Please try again.`);
+            });
+        }
+
+        // Function to toggle between Sign In and Sign Up forms
+        function toggleForm(formType) {
+            document.getElementById('signinForm').style.display = formType === 'signin' ? 'block' : 'none';
+            document.getElementById('signupForm').style.display = formType === 'signup' ? 'block' : 'none';
+        }
+
+        // Function for forgot password (placeholder)
+        function forgotPassword() {
+            alert("Forgot password functionality coming soon!");
+        }
+    </script>
+</body>
+</html>
